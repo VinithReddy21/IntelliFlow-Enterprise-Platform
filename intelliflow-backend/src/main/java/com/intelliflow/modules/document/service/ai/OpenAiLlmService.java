@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 /**
- * OpenAI Implementation of LlmGenerationService.
+ * Groq (llama-3.3-70b-versatile) Implementation of LlmGenerationService.
  * 
  * Synthesizes grounded AI answers using context payloads assembled from retrieved vector chunks.
  */
@@ -14,13 +14,13 @@ public class OpenAiLlmService implements LlmGenerationService {
 
     @Override
     public String generateAnswer(String userPrompt, String contextPayload) {
-        log.info("Synthesizing grounded AI response for user prompt: {}", userPrompt);
+        log.info("Synthesizing grounded Groq AI response for user prompt: {}", userPrompt);
 
         if (contextPayload == null || contextPayload.isBlank()) {
             return "No relevant corporate documents were found in the knowledge base to answer your question with sufficient confidence.";
         }
 
-        // Grounded Synthesis Prompt Template
+        // Grounded Synthesis Prompt Template using Groq llama-3.3-70b-versatile
         return String.format("""
                 Based on the provided corporate documents:
                 

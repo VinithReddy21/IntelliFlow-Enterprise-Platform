@@ -27,6 +27,12 @@ services:
         value: "true"
       - key: JWT_SECRET
         generateValue: true
+      - key: GROQ_API_KEY
+        sync: false
+      - key: GROQ_MODEL_CHAT
+        value: llama-3.3-70b-versatile
+      - key: EMBEDDING_MODEL_NAME
+        value: sentence-transformers/all-MiniLM-L6-v2
       - key: AI_SERVICE_BASE_URL
         value: https://intelliflow-ai-service.onrender.com
       - key: ALLOWED_ORIGINS
@@ -42,9 +48,11 @@ services:
     plan: free
     healthCheckPath: /health
     envVars:
-      - key: OPENAI_API_KEY
+      - key: GROQ_API_KEY
         sync: false
-      - key: OPENAI_MODEL_EMBEDDING
-        value: text-embedding-3-small
-      - key: OPENAI_MODEL_CHAT
-        value: gpt-4o-mini
+      - key: GROQ_BASE_URL
+        value: https://api.groq.com/openai/v1
+      - key: GROQ_MODEL_CHAT
+        value: llama-3.3-70b-versatile
+      - key: EMBEDDING_MODEL_NAME
+        value: sentence-transformers/all-MiniLM-L6-v2

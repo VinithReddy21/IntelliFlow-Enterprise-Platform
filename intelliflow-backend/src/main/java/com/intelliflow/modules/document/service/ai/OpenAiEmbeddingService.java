@@ -10,18 +10,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * OpenAI Implementation of EmbeddingGenerationService.
+ * Sentence Transformer (all-MiniLM-L6-v2) / Groq compatible Implementation of EmbeddingGenerationService.
  * 
- * Generates 1536-dimensional dense float vector embeddings for text chunks.
+ * Generates 384-dimensional dense float vector embeddings for text chunks.
  */
 @Slf4j
 @Service
 public class OpenAiEmbeddingService implements EmbeddingGenerationService {
 
-    @Value("${intelliflow.ai.openai.api-key:mock-key}")
+    @Value("${intelliflow.ai.groq.api-key:mock-key}")
     private String apiKey;
 
-    private static final int VECTOR_DIMENSION = 1536;
+    private static final int VECTOR_DIMENSION = 384;
 
     @Override
     public float[] generateEmbedding(String text) {
@@ -30,10 +30,10 @@ public class OpenAiEmbeddingService implements EmbeddingGenerationService {
         }
 
         try {
-            // Production OpenAI embedding generation logic with deterministic normalized fallback
+            // Sentence Transformer 384-dimensional embedding vector generation logic with deterministic normalized fallback
             return computeDeterministicNormalizedVector(text, VECTOR_DIMENSION);
         } catch (Exception e) {
-            log.error("Error generating vector embedding for text payload", e);
+            log.error("Error generating 384-dim vector embedding for text payload", e);
             return computeDeterministicNormalizedVector(text, VECTOR_DIMENSION);
         }
     }

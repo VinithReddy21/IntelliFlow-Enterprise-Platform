@@ -1,9 +1,9 @@
-# 🛡️ IntelliFlow Platform — Enterprise Security Checklist
+# 🛡️ IntelliFlow Platform — Enterprise Security Checklist (100% Free Stack)
 
 ## 1. Secret & Credentials Verification
 
 - [x] **Zero Hardcoded Passwords**: All database passwords externalized via `${SPRING_DATASOURCE_PASSWORD}` and `DATABASE_URL`.
-- [x] **Zero Hardcoded API Keys**: OpenAI keys externalized via `${OPENAI_API_KEY}`.
+- [x] **Zero Hardcoded API Keys**: Groq keys externalized via `${GROQ_API_KEY}`.
 - [x] **Zero Hardcoded JWT Keys**: Default JWT secrets removed from configuration; production key length validated at startup.
 - [x] **Git Repository Safety**: `.gitignore` configured to ignore `.env`, `.env.production`, `*.pem`, `*.key`, and build artifacts.
 
@@ -42,8 +42,8 @@
 
 ---
 
-## 6. Database Security Verification
+## 6. Database & Vector Security Verification
 
 - [x] **SSL Mode Required**: Neon PostgreSQL connection uses `sslmode=require`.
-- [x] **Parameterized Queries**: JPA/Hibernate parameter binding prevents SQL injection vulnerabilities.
+- [x] **384-Dim Vector Indexing**: `document_chunks` table configured with `vector(384)` matching Hugging Face `sentence-transformers/all-MiniLM-L6-v2`.
 - [x] **ABAC Department Isolation**: Vector similarity queries strictly filter candidates by user department authority.
