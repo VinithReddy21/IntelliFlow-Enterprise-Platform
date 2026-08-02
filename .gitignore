@@ -1,0 +1,83 @@
+# ===================================================================
+# IntelliFlow Platform — Enterprise .gitignore
+# ===================================================================
+
+# Environment Variables & Secrets
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+*.env
+*.pem
+*.key
+*.crt
+
+# Java / Maven Artifacts
+target/
+*.class
+*.jar
+*.war
+*.ear
+*.rar
+.mvn/
+mvnw
+mvnw.cmd
+
+# Node.js / React Frontend
+node_modules/
+dist/
+build/
+.vite/
+.output/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Python / FastAPI AI Microservice
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+ENV/
+env/
+*.egg-info/
+.eggs/
+
+# IDE Configuration
+.idea/
+*.iml
+*.iws
+.vscode/
+*.swp
+*.swo
+.classpath
+.project
+.settings/
+
+# OS System Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Logs & Temporary Data
+*.log
+logs/
+tmp/
+storage-data/
+uploads/
+
+# Test Coverage Artifacts
+coverage/
+surefire-reports/

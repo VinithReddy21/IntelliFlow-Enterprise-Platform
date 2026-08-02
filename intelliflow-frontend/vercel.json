@@ -1,0 +1,16 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://intelliflow-backend.onrender.com/api/:path*"
+    },
+    {
+      "source": "/ws-notifications/:path*",
+      "destination": "https://intelliflow-backend.onrender.com/ws-notifications/:path*"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}

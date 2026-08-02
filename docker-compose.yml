@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: intelliflow-postgres
+    restart: always
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-intelliflow_db}
+      POSTGRES_USER: ${POSTGRES_USER:-intelliflow_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-intelliflow_secret_pass}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-intelliflow_user} -d ${POSTGRES_DB:-intelliflow_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: intelliflow-redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  intelliflow-backend:
+    build:
+      context: ./intelliflow-backend
+      dockerfile: Dockerfile
+    container_name: intelliflow-backend
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-intelliflow_db}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-intelliflow_user}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-intelliflow_secret_pass}
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
+      APP_JWT_SECRET: ${APP_JWT_SECRET:-ProductionSuperSecretJwtKeyWithMinimum32BytesLengthRequirement}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget --quiet --tries=1 --spider http://localhost:8080/actuator/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  postgres_data:
+  redis_data:

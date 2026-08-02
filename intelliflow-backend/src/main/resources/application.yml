@@ -1,0 +1,81 @@
+spring:
+  application:
+    name: intelliflow-backend
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+  
+  # Virtual Threads Enabled (Java 21 concurrency)
+  threads:
+    virtual:
+      enabled: true
+
+  # PostgreSQL Relational Datasource Settings
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/intelliflow_db}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      idle-timeout: 300000
+      connection-timeout: 20000
+      max-lifetime: 1200000
+
+  # Spring Data JPA Configuration
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+
+  # Flyway Migration Automation
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+
+  # Redis Connection
+  data:
+    redis:
+      url: ${SPRING_DATA_REDIS_URL:}
+      host: ${SPRING_DATA_REDIS_HOST:localhost}
+      port: ${SPRING_DATA_REDIS_PORT:6379}
+      password: ${SPRING_DATA_REDIS_PASSWORD:}
+      ssl:
+        enabled: ${SPRING_DATA_REDIS_SSL:false}
+      timeout: 2000ms
+
+# CORS Origins Strategy
+allowed:
+  origins: ${ALLOWED_ORIGINS:http://localhost:3000,http://localhost:5173,https://*.vercel.app}
+
+# Server Port
+server:
+  port: ${PORT:8080}
+  error:
+    include-message: on-param
+    include-binding-errors: on-param
+
+# Custom Security & Token Configuration
+jwt:
+  secret: ${JWT_SECRET:ReplaceWith256BitEntropySecretKeyInProductionEnvironment123!}
+  expiration-ms: ${JWT_EXPIRATION_MS:900000}          # 15 Minutes
+  refresh-expiration-ms: ${JWT_REFRESH_EXPIRATION_MS:604800000} # 7 Days
+
+# Downstream Microservices
+ai-service:
+  base-url: ${AI_SERVICE_BASE_URL:http://localhost:8000}
+
+# Spring Actuator Observability
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: when_authorized

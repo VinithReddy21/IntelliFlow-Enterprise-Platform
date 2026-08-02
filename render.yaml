@@ -1,0 +1,50 @@
+services:
+  # Spring Boot Backend Service on Render
+  - type: web
+    name: intelliflow-backend
+    env: docker
+    dockerfilePath: ./intelliflow-backend/Dockerfile
+    dockerContext: ./intelliflow-backend
+    region: oregon
+    plan: free
+    healthCheckPath: /actuator/health
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: SPRING_DATASOURCE_URL
+        sync: false
+      - key: SPRING_DATASOURCE_USERNAME
+        sync: false
+      - key: SPRING_DATASOURCE_PASSWORD
+        sync: false
+      - key: SPRING_DATA_REDIS_HOST
+        sync: false
+      - key: SPRING_DATA_REDIS_PORT
+        value: "6379"
+      - key: SPRING_DATA_REDIS_PASSWORD
+        sync: false
+      - key: SPRING_DATA_REDIS_SSL
+        value: "true"
+      - key: JWT_SECRET
+        generateValue: true
+      - key: AI_SERVICE_BASE_URL
+        value: https://intelliflow-ai-service.onrender.com
+      - key: ALLOWED_ORIGINS
+        value: https://*.vercel.app,http://localhost:3000
+
+  # FastAPI AI Service on Render
+  - type: web
+    name: intelliflow-ai-service
+    env: docker
+    dockerfilePath: ./Dockerfile.ai
+    dockerContext: ./
+    region: oregon
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENAI_MODEL_EMBEDDING
+        value: text-embedding-3-small
+      - key: OPENAI_MODEL_CHAT
+        value: gpt-4o-mini
