@@ -41,7 +41,7 @@ public class DocumentChunkEntity {
     @Column(name = "token_count", nullable = false)
     private int tokenCount;
 
-    @Column(name = "embedding", columnDefinition = "vector(1536)")
+    @Column(name = "embedding", columnDefinition = "vector(384)")
     private float[] embedding;
 
     @JdbcTypeCode(SqlTypes.JSON)
