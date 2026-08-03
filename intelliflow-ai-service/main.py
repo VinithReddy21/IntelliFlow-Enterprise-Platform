@@ -9,6 +9,7 @@ from app.core.exceptions import (
     validation_exception_handler,
     global_exception_handler
 )
+from app.api.v1.api import api_router
 from app.schemas.response import ApiResponse
 
 app = FastAPI(
@@ -33,10 +34,14 @@ app.add_exception_handler(CustomBaseException, custom_base_exception_handler)
 app.add_exception_handler(RequestValidationError, validation_exception_handler)
 app.add_exception_handler(Exception, global_exception_handler)
 
+# Register API Routers under /api/v1
+app.include_router(api_router, prefix=settings.API_V1_STR)
+
+# Root Level Health Check for Render & Kubernetes Liveness Probes
 @app.get("/health", tags=["Health Probe"], response_model=ApiResponse[dict])
-async def health_check():
+async def root_health_check():
     """
-    Health check endpoint for Kubernetes liveness & readiness probes.
+    Root level health probe endpoint.
     """
     return ApiResponse[dict](
         status="success",

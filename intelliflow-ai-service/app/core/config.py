@@ -21,18 +21,26 @@ class Settings(BaseSettings):
         description="Redis connection URL"
     )
     
-    # AI Credentials
-    OPENAI_API_KEY: str = Field(
+    # AI Credentials & Model Configuration (Groq LLM + SentenceTransformers)
+    GROQ_API_KEY: str = Field(
         default="",
-        description="OpenAI API authentication key"
+        description="Groq API authentication key"
     )
-    OPENAI_MODEL_EMBEDDING: str = Field(
-        default="text-embedding-3-small",
-        description="Vector embedding model"
+    GROQ_BASE_URL: str = Field(
+        default="https://api.groq.com/openai/v1",
+        description="Groq OpenAI-compatible API base URL"
     )
-    OPENAI_MODEL_CHAT: str = Field(
-        default="gpt-4o-mini",
-        description="Chat LLM model"
+    GROQ_MODEL_CHAT: str = Field(
+        default="llama-3.3-70b-versatile",
+        description="Groq free LLM model"
+    )
+    EMBEDDING_MODEL_NAME: str = Field(
+        default="sentence-transformers/all-MiniLM-L6-v2",
+        description="Hugging Face Sentence Transformer embedding model"
+    )
+    EMBEDDING_VECTOR_DIMENSION: int = Field(
+        default=384,
+        description="Vector dimension produced by sentence-transformers/all-MiniLM-L6-v2"
     )
 
     class Config:
