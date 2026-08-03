@@ -1,2 +1,0 @@
-ALTER TABLE document_chunks
-ADD COLUMN IF NOT EXISTS metadata JSONB;
