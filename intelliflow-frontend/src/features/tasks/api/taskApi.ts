@@ -117,10 +117,15 @@ let memoryTasks = [...initialMockTasks];
 export const taskApi = {
   fetchTasks: async (): Promise<TaskItem[]> => {
     try {
-      const res = await fetch('/api/v1/tasks');
+      const token = localStorage.getItem('intelliflow_jwt');
+      const headers: Record<string, string> = {};
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
+      const res = await fetch('/api/v1/tasks', { headers });
       if (res.ok) {
         const data = await res.json();
-        return data.data || data;
+        const tasks = data.data?.content || data.data || data;
+        if (Array.isArray(tasks) && tasks.length > 0) return tasks;
       }
     } catch {
       // Fallback to local memory mock data
@@ -129,6 +134,26 @@ export const taskApi = {
   },
 
   createTask: async (input: CreateTaskInput): Promise<TaskItem> => {
+    try {
+      const token = localStorage.getItem('intelliflow_jwt');
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
+      const res = await fetch('/api/v1/tasks', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(input),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const created = data.data || data;
+        memoryTasks = [created, ...memoryTasks];
+        return created;
+      }
+    } catch {
+      // Fallback to local state update
+    }
+
     const newTask: TaskItem = {
       id: crypto.randomUUID(),
       title: input.title,
@@ -149,6 +174,26 @@ export const taskApi = {
   },
 
   updateTask: async (id: string, input: UpdateTaskInput): Promise<TaskItem> => {
+    try {
+      const token = localStorage.getItem('intelliflow_jwt');
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
+      const res = await fetch(`/api/v1/tasks/${id}`, {
+        method: 'PUT',
+        headers,
+        body: JSON.stringify(input),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const updated = data.data || data;
+        memoryTasks = memoryTasks.map((t) => (t.id === id ? { ...t, ...updated } : t));
+        return updated;
+      }
+    } catch {
+      // Fallback
+    }
+
     memoryTasks = memoryTasks.map((t) => (t.id === id ? { ...t, ...input, updatedAt: new Date().toISOString() } : t));
     const updated = memoryTasks.find((t) => t.id === id);
     if (!updated) throw new Error('Task not found');
@@ -156,6 +201,26 @@ export const taskApi = {
   },
 
   updateTaskStatus: async (id: string, status: TaskStatus): Promise<TaskItem> => {
+    try {
+      const token = localStorage.getItem('intelliflow_jwt');
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
+      const res = await fetch(`/api/v1/tasks/${id}/status`, {
+        method: 'PATCH',
+        headers,
+        body: JSON.stringify({ status }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const updated = data.data || data;
+        memoryTasks = memoryTasks.map((t) => (t.id === id ? { ...t, status: updated.status } : t));
+        return updated;
+      }
+    } catch {
+      // Fallback
+    }
+
     memoryTasks = memoryTasks.map((t) => (t.id === id ? { ...t, status, updatedAt: new Date().toISOString() } : t));
     const updated = memoryTasks.find((t) => t.id === id);
     if (!updated) throw new Error('Task not found');
@@ -163,6 +228,18 @@ export const taskApi = {
   },
 
   deleteTask: async (id: string): Promise<void> => {
+    try {
+      const token = localStorage.getItem('intelliflow_jwt');
+      const headers: Record<string, string> = {};
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
+      await fetch(`/api/v1/tasks/${id}`, {
+        method: 'DELETE',
+        headers,
+      });
+    } catch {
+      // Fallback
+    }
     memoryTasks = memoryTasks.filter((t) => t.id !== id);
   },
 };

@@ -24,9 +24,13 @@ const mockCitations: SourceCitation[] = [
 export const aiApi = {
   vectorSearch: async (params: VectorSearchParams): Promise<VectorSearchResultItem[]> => {
     try {
-      const res = await fetch('/api/v1/documents/search', {
+      const token = localStorage.getItem('intelliflow_jwt');
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
+      const res = await fetch('/api/v1/documents/search/similarity', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify(params),
       });
       if (res.ok) {
@@ -79,9 +83,13 @@ export const aiApi = {
 
   ragQuery: async (prompt: string): Promise<{ answer: string; citations: SourceCitation[]; confidenceScore: number; latencyMs: number }> => {
     try {
-      const res = await fetch('/api/v1/documents/rag/query', {
+      const token = localStorage.getItem('intelliflow_jwt');
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
+      const res = await fetch('/api/v1/documents/search/rag', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({ prompt }),
       });
       if (res.ok) {

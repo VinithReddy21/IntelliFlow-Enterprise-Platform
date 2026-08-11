@@ -48,13 +48,13 @@ CREATE TABLE IF NOT EXISTS documents (
     deleted_at TIMESTAMP WITH TIME ZONE
 );
 
--- Document Chunks Table with Vector Embeddings (sentence-transformers/all-MiniLM-L6-v2 384 dimensions)
+-- Document Chunks Table with Vector Embeddings
 CREATE TABLE IF NOT EXISTS document_chunks (
     id UUID PRIMARY KEY,
     document_id UUID NOT NULL REFERENCES documents(id) ON DELETE CASCADE,
     chunk_index INT NOT NULL,
     content TEXT NOT NULL,
-    embedding vector(384),
+    embedding vector(1536),
     token_count INT NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL
 );

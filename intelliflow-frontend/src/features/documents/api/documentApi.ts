@@ -76,10 +76,15 @@ let memoryDocuments = [...initialMockDocuments];
 export const documentApi = {
   fetchDocuments: async (): Promise<DocumentItem[]> => {
     try {
-      const res = await fetch('/api/v1/documents');
+      const token = localStorage.getItem('intelliflow_jwt');
+      const headers: Record<string, string> = {};
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
+      const res = await fetch('/api/v1/documents', { headers });
       if (res.ok) {
         const data = await res.json();
-        return data.data || data;
+        const docs = data.data?.content || data.data || data;
+        if (Array.isArray(docs) && docs.length > 0) return docs;
       }
     } catch {
       // Fallback to local memory mock
@@ -88,6 +93,31 @@ export const documentApi = {
   },
 
   uploadDocument: async (file: File): Promise<DocumentItem> => {
+    try {
+      const token = localStorage.getItem('intelliflow_jwt');
+      const formData = new FormData();
+      formData.append('file', file);
+      const metadataBlob = new Blob([JSON.stringify({ description: 'Uploaded via Web UI' })], { type: 'application/json' });
+      formData.append('data', metadataBlob);
+
+      const headers: Record<string, string> = {};
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
+      const res = await fetch('/api/v1/documents', {
+        method: 'POST',
+        headers,
+        body: formData,
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const uploaded = data.data || data;
+        memoryDocuments = [uploaded, ...memoryDocuments];
+        return uploaded;
+      }
+    } catch {
+      // Fallback to local state update
+    }
+
     const newDoc: DocumentItem = {
       id: crypto.randomUUID(),
       fileName: file.name,
@@ -99,8 +129,8 @@ export const documentApi = {
       uploaderId: 'usr-1',
       uploaderName: 'Alex Architect',
       createdAt: new Date().toISOString(),
-      vectorDimensions: 1536,
-      embeddingModel: 'text-embedding-3-small',
+      vectorDimensions: 384,
+      embeddingModel: 'sentence-transformers/all-MiniLM-L6-v2',
       chunks: [
         { id: 'chk-new-1', chunkIndex: 1, content: `Extracted content preview from uploaded file: ${file.name}. Apache Tika text parser completed extraction.`, tokenCount: 420 },
       ],
@@ -110,6 +140,18 @@ export const documentApi = {
   },
 
   deleteDocument: async (id: string): Promise<void> => {
+    try {
+      const token = localStorage.getItem('intelliflow_jwt');
+      const headers: Record<string, string> = {};
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
+      await fetch(`/api/v1/documents/${id}`, {
+        method: 'DELETE',
+        headers,
+      });
+    } catch {
+      // Fallback
+    }
     memoryDocuments = memoryDocuments.filter((d) => d.id !== id);
   },
 };

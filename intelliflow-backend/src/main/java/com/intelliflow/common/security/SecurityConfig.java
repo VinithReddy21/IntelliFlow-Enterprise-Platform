@@ -39,7 +39,7 @@ public class SecurityConfig {
     private final SecurityHeadersFilter securityHeadersFilter;
     private final IdempotencyFilter idempotencyFilter;
 
-    @Value("${allowed.origins:http://localhost:3000,http://localhost:5173,https://*.vercel.app}")
+    @Value("${allowed.origins:http://localhost:3000,http://localhost:3001,http://localhost:5173,https://*.vercel.app}")
     private String allowedOriginsPattern;
 
     @Bean
