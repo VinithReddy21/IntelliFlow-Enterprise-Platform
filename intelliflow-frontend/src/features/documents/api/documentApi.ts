@@ -13,10 +13,10 @@ const initialMockDocuments: DocumentItem[] = [
     uploaderName: 'Alex Architect',
     departmentId: 'dept-ai',
     createdAt: '2026-08-01T14:20:00Z',
-    vectorDimensions: 1536,
-    embeddingModel: 'text-embedding-3-small',
+    vectorDimensions: 384,
+    embeddingModel: 'sentence-transformers/all-MiniLM-L6-v2',
     chunks: [
-      { id: 'chk-1', chunkIndex: 1, content: 'IntelliFlow platform implements a 1536-dimensional vector similarity retrieval engine leveraging pgvector HNSW indexes.', tokenCount: 480 },
+      { id: 'chk-1', chunkIndex: 1, content: 'IntelliFlow platform implements a 384-dimensional vector similarity retrieval engine leveraging pgvector HNSW indexes.', tokenCount: 480 },
       { id: 'chk-2', chunkIndex: 2, content: 'Document ingestion pipelines process uploaded multi-part files via Apache Tika text parsing and recursive token chunking.', tokenCount: 495 },
       { id: 'chk-3', chunkIndex: 3, content: 'Document permission filtering guarantees department-level ABAC authorization prior to LLM prompt context assembly.', tokenCount: 460 },
     ],
@@ -33,8 +33,8 @@ const initialMockDocuments: DocumentItem[] = [
     uploaderName: 'Elena SecOps',
     departmentId: 'dept-sec',
     createdAt: '2026-08-02T09:10:00Z',
-    vectorDimensions: 1536,
-    embeddingModel: 'text-embedding-3-small',
+    vectorDimensions: 384,
+    embeddingModel: 'sentence-transformers/all-MiniLM-L6-v2',
     chunks: [
       { id: 'chk-10', chunkIndex: 1, content: 'RateLimitingFilter uses an in-memory token bucket enforcing 10 req/min limits on authentication routes.', tokenCount: 410 },
       { id: 'chk-11', chunkIndex: 2, content: 'IdempotencyFilter caches 2xx HTTP POST execution payloads by Idempotency-Key header to prevent duplicate mutations.', tokenCount: 470 },
@@ -51,8 +51,8 @@ const initialMockDocuments: DocumentItem[] = [
     uploaderId: 'usr-2',
     uploaderName: 'David Lead',
     createdAt: '2026-08-02T11:45:00Z',
-    vectorDimensions: 1536,
-    embeddingModel: 'text-embedding-3-small',
+    vectorDimensions: 384,
+    embeddingModel: 'sentence-transformers/all-MiniLM-L6-v2',
     chunks: [
       { id: 'chk-20', chunkIndex: 1, content: 'HikariCP maximumPoolSize=30 and minimumIdle=10 configuration reduced database latency by 40% under high concurrency.', tokenCount: 380 },
     ],
@@ -84,7 +84,24 @@ export const documentApi = {
       if (res.ok) {
         const data = await res.json();
         const docs = data.data?.content || data.data || data;
-        if (Array.isArray(docs) && docs.length > 0) return docs;
+        if (Array.isArray(docs)) {
+          return docs.map((d: any) => ({
+            id: d.id,
+            fileName: d.title || d.fileName || 'Untitled',
+            fileKey: d.fileKey || '',
+            checksum: d.checksumSha256 || d.checksum || '',
+            mimeType: d.mimeType || 'application/octet-stream',
+            sizeBytes: d.fileSizeBytes || d.sizeBytes || 0,
+            status: d.status || 'ACTIVE',
+            uploaderId: d.uploaderId || d.uploader?.id || '',
+            uploaderName: d.uploaderName || (d.uploader ? `${d.uploader.firstName} ${d.uploader.lastName}` : 'System User'),
+            departmentId: d.departmentId || '',
+            createdAt: d.createdAt || new Date().toISOString(),
+            vectorDimensions: 384,
+            embeddingModel: 'sentence-transformers/all-MiniLM-L6-v2',
+            chunks: d.chunks || [],
+          }));
+        }
       }
     } catch {
       // Fallback to local memory mock
@@ -97,7 +114,7 @@ export const documentApi = {
       const token = localStorage.getItem('intelliflow_jwt');
       const formData = new FormData();
       formData.append('file', file);
-      const metadataBlob = new Blob([JSON.stringify({ description: 'Uploaded via Web UI' })], { type: 'application/json' });
+      const metadataBlob = new Blob([JSON.stringify({ title: file.name, description: 'Uploaded via Web UI' })], { type: 'application/json' });
       formData.append('data', metadataBlob);
 
       const headers: Record<string, string> = {};
@@ -110,7 +127,22 @@ export const documentApi = {
       });
       if (res.ok) {
         const data = await res.json();
-        const uploaded = data.data || data;
+        const d = data.data || data;
+        const uploaded: DocumentItem = {
+          id: d.id,
+          fileName: d.title || d.fileName || file.name,
+          fileKey: d.fileKey || '',
+          checksum: d.checksumSha256 || d.checksum || '',
+          mimeType: d.mimeType || file.type || 'application/octet-stream',
+          sizeBytes: d.fileSizeBytes || d.sizeBytes || file.size,
+          status: d.status || 'ACTIVE',
+          uploaderId: d.uploaderId || d.uploader?.id || '',
+          uploaderName: d.uploaderName || 'System User',
+          createdAt: d.createdAt || new Date().toISOString(),
+          vectorDimensions: 384,
+          embeddingModel: 'sentence-transformers/all-MiniLM-L6-v2',
+          chunks: d.chunks || [],
+        };
         memoryDocuments = [uploaded, ...memoryDocuments];
         return uploaded;
       }

@@ -1,3 +1,4 @@
+import math
 import logging
 from typing import List, Dict, Any, Optional
 from sqlalchemy import text
@@ -6,12 +7,61 @@ from app.services.embedding_service import EmbeddingService
 
 logger = logging.getLogger("intelliflow.retrieval.pgvector")
 
+# Global in-memory document chunk registry for offline / local-first operation
+IN_MEMORY_CHUNK_REGISTRY: List[Dict[str, Any]] = [
+    {
+        "chunk_id": "c1-architecture-overview",
+        "document_id": "d1-platform-spec",
+        "document_title": "IntelliFlow Platform Architecture & Technology Stack",
+        "chunk_index": 0,
+        "content": "IntelliFlow AI is an enterprise business operations platform built on a Hybrid Modular Monolith + AI Microservice architecture. The Core Backend Engine is written in Java 21 Spring Boot 3.2 managing transactional business logic, task lifecycles, and RBAC/ABAC security. The AI Intelligence Microservice is implemented in Python 3.11/3.12 FastAPI orchestrating Document Ingestion, PDF/DOCX parsing, 384-dimensional dense vector embeddings, and RAG retrieval.",
+        "embedding": None,
+        "token_count": 82
+    },
+    {
+        "chunk_id": "c2-ai-vector-engine",
+        "document_id": "d1-platform-spec",
+        "document_title": "IntelliFlow AI & pgvector RAG Engine Specification",
+        "chunk_index": 1,
+        "content": "IntelliFlow's AI microservice utilizes sentence-transformers/all-MiniLM-L6-v2 to encode text into 384-dimensional dense float vector embeddings. Vectors are indexed in PostgreSQL using pgvector HNSW (Hierarchical Navigable Small World) cosine distance index (<=> operator). High-speed LLM inference is powered by Groq LPU hardware with zero hallucinations through grounded 1:1 citations.",
+        "embedding": None,
+        "token_count": 76
+    },
+    {
+        "chunk_id": "c3-security-compliance",
+        "document_id": "d2-security-standard",
+        "document_title": "Enterprise Security, Rate Limiting & Auth Standard",
+        "chunk_index": 0,
+        "content": "Security is enforced via Stateless RS256/HS256 JWT dual-tokens, BCrypt password hashing (Cost 12), and an IP-based sliding window token bucket RateLimitingFilter (10 req/min on Auth endpoints). Department-level Attribute-Based Access Control (ABAC) guarantees multi-tenant document isolation.",
+        "embedding": None,
+        "token_count": 58
+    },
+    {
+        "chunk_id": "c4-frontend-workspace",
+        "document_id": "d3-frontend-spec",
+        "document_title": "React 19 Frontend & Enterprise Kanban Workspace",
+        "chunk_index": 0,
+        "content": "The user interface is built with React 19, TypeScript, Tailwind CSS, and Vite. It features a real-time Kanban Task Board, Document Vault with drag-and-drop ingestion, and an interactive ChatGPT-style AI Copilot Canvas with source citation panels and telemetry meters.",
+        "embedding": None,
+        "token_count": 52
+    }
+]
+
+def cosine_similarity(v1: List[float], v2: List[float]) -> float:
+    dot = sum(a * b for a, b in zip(v1, v2))
+    mag1 = math.sqrt(sum(a * a for a in v1))
+    mag2 = math.sqrt(sum(b * b for b in v2))
+    if mag1 == 0 or mag2 == 0:
+        return 0.0
+    return dot / (mag1 * mag2)
+
+def register_in_memory_chunk(chunk: Dict[str, Any]):
+    IN_MEMORY_CHUNK_REGISTRY.append(chunk)
+
 class PgVectorRetriever:
     """
     Production pgvector Similarity Search & Candidate Ranking Retriever.
-    
-    Encodes query text into 384-dim dense vectors using EmbeddingService and executes
-    native HNSW vector cosine similarity searches (<=> operator) against PostgreSQL document_chunks.
+    Supports native PostgreSQL pgvector HNSW queries and in-memory cosine fallback.
     """
 
     def __init__(self, embedding_service: EmbeddingService):
@@ -26,13 +76,13 @@ class PgVectorRetriever:
         query_vector = self.embedding_service.encode_query(query)
         vector_str = f"[{','.join(str(v) for v in query_vector)}]"
 
-        logger.info(f"Executing native pgvector HNSW similarity search for query: '{query[:40]}...' | TopK: {top_k}")
+        logger.info(f"Executing pgvector HNSW similarity search for query: '{query[:40]}...' | TopK: {top_k}")
 
         sql_query = text("""
             SELECT 
                 dc.id AS chunk_id,
                 dc.document_id,
-                d.file_name AS document_title,
+                COALESCE(d.title, 'Corporate Document') AS document_title,
                 dc.chunk_index,
                 dc.content,
                 dc.token_count,
@@ -72,27 +122,29 @@ class PgVectorRetriever:
                         logger.info(f"Retrieved {len(chunks)} real pgvector candidate chunks from database.")
                         return chunks
             except Exception as e:
-                logger.warning(f"Database pgvector query unfulfilled ({str(e)}). Falling back to structured candidates.")
+                logger.warning(f"Database pgvector query failed ({str(e)}). Utilizing dynamic in-memory vector store.")
 
-        # Fallback candidate chunks for development / offline testing
-        fallback_chunks = [
-            {
-                "chunk_id": "chk-101",
-                "document_id": "46246246-65c4-4ea4-ad49-5299342bc731",
-                "document_title": "Enterprise_RAG_Architecture_Specification_v1.pdf",
-                "chunk_index": 1,
-                "content": "IntelliFlow platform implements a 384-dimensional vector similarity retrieval engine leveraging pgvector HNSW indexes.",
-                "similarity_score": 0.96,
-                "token_count": 480
-            },
-            {
-                "chunk_id": "chk-102",
-                "document_id": "6ba3aa7e-83f6-4e3e-a957-eb4b411ec131",
-                "document_title": "OWASP_Security_Hardening_Standard_2026.docx",
-                "chunk_index": 2,
-                "content": "RateLimitingFilter uses an in-memory token bucket enforcing 10 req/min limits on authentication routes.",
-                "similarity_score": 0.91,
-                "token_count": 410
-            }
-        ]
-        return fallback_chunks[:top_k]
+        # In-Memory Dynamic Vector Cosine Ranking
+        scored_chunks = []
+        for chunk in IN_MEMORY_CHUNK_REGISTRY:
+            chunk_emb = chunk.get("embedding")
+            if chunk_emb is None:
+                chunk_emb = self.embedding_service.encode_query(chunk["content"])
+                chunk["embedding"] = chunk_emb
+
+            score = cosine_similarity(query_vector, chunk_emb)
+            scored_chunks.append({
+                "chunk_id": chunk["chunk_id"],
+                "document_id": chunk["document_id"],
+                "document_title": chunk["document_title"],
+                "chunk_index": chunk["chunk_index"],
+                "content": chunk["content"],
+                "similarity_score": round(float(score), 4),
+                "token_count": chunk.get("token_count", len(chunk["content"].split()))
+            })
+
+        # Sort descending by cosine similarity
+        scored_chunks.sort(key=lambda x: x["similarity_score"], reverse=True)
+        top_results = scored_chunks[:top_k]
+        logger.info(f"Retrieved {len(top_results)} in-memory candidate chunks with top similarity {top_results[0]['similarity_score'] if top_results else 0.0}")
+        return top_results

@@ -48,6 +48,7 @@ export const ChatMessageItem: React.FC<Props> = ({ message, onRegenerate }) => {
                 confidenceScore={message.confidenceScore}
                 latencyMs={message.latencyMs}
                 citationCount={message.citations?.length}
+                modelName={message.model || 'llama-3.3-70b-versatile'}
               />
             )}
 

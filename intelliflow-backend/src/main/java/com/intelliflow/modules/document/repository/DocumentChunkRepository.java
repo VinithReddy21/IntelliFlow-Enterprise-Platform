@@ -14,7 +14,7 @@ import java.util.UUID;
  * Spring Data JPA Repository for DocumentChunkEntity.
  * 
  * Provides batch chunk retrieval and native PostgreSQL pgvector cosine similarity
- * vector search queries over 1536-dimensional embedding indexes.
+ * vector search queries over 384-dimensional embedding indexes.
  */
 @Repository
 public interface DocumentChunkRepository extends JpaRepository<DocumentChunkEntity, UUID> {
@@ -30,12 +30,13 @@ public interface DocumentChunkRepository extends JpaRepository<DocumentChunkEnti
      * Distance operator '<=>' measures Cosine Distance (1 - Cosine Similarity).
      */
     @Query(value = """
-        SELECT c.*
+        SELECT c.id, c.document_id, c.chunk_index, c.content, c.token_count, c.metadata, c.created_at,
+               CAST(c.embedding AS float4[]) AS embedding
         FROM document_chunks c
         JOIN documents d ON c.document_id = d.id
         WHERE d.deleted_at IS NULL
           AND d.status = 'ACTIVE'
-          AND (:departmentId IS NULL OR d.department_id = :departmentId)
+          AND (CAST(:departmentId AS uuid) IS NULL OR d.department_id = CAST(:departmentId AS uuid))
         ORDER BY c.embedding <=> CAST(:queryEmbedding AS vector)
         LIMIT :topK
         """, nativeQuery = true)

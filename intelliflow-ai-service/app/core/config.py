@@ -31,7 +31,7 @@ class Settings(BaseSettings):
         description="Groq OpenAI-compatible API base URL"
     )
     GROQ_MODEL_CHAT: str = Field(
-        default="llama-3.3-70b-versatile",
+        default="openai/gpt-oss-120b",
         description="Groq free LLM model"
     )
     EMBEDDING_MODEL_NAME: str = Field(

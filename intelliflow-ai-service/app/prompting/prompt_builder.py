@@ -26,13 +26,13 @@ class PromptBuilder:
 
         full_system_prompt = (
             f"{system_instruction}\n\n"
-            f"INSTRUCTIONS:\n"
-            f"Use the following retrieved corporate document passages to synthesize an accurate, grounded answer. "
-            f"If the answer cannot be deduced from context, state clearly that insufficient information was found."
+            f"You are IntelliFlow Enterprise Copilot, a senior technical AI assistant. "
+            f"When relevant enterprise knowledge documents and passages are provided below, prioritize and ground your answer on them with citations. "
+            f"When asked general questions, technical concepts, architecture, or coding questions, provide comprehensive, natural, and accurate explanations while referencing relevant corporate context where applicable."
         )
 
         user_content = (
-            f"Context Passages:\n{context_payload_str}\n\n"
+            f"Retrieved Knowledge Context:\n{context_payload_str}\n\n"
             f"User Question: {user_prompt}"
         )
 

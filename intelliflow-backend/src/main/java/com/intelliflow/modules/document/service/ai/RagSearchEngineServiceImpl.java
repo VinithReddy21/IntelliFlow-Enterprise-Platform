@@ -114,7 +114,7 @@ public class RagSearchEngineServiceImpl implements RagSearchEngineService {
                 .query(requestDto.getPrompt())
                 .departmentId(requestDto.getDepartmentId())
                 .topK(requestDto.getMaxSourceChunks())
-                .minSimilarity(0.3f)
+                .minSimilarity(0.0f)
                 .build();
 
         SimilaritySearchResponseDto searchResponse = searchSimilarChunks(searchDto);

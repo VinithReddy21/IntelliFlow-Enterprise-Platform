@@ -113,7 +113,7 @@ export const DocumentsPage: React.FC = () => {
             <div className="p-6 rounded-2xl glass-card border border-white/10 flex flex-col items-center justify-center text-center h-full">
               <Database className="w-8 h-8 text-amber-400/80 mb-2" />
               <p className="text-xs font-bold text-zinc-200">pgvector HNSW Store Active</p>
-              <p className="text-[11px] text-zinc-500 mt-1">Uploaded files will be processed via Apache Tika and chunked into 1536-dim vector embeddings.</p>
+              <p className="text-[11px] text-zinc-500 mt-1">Uploaded files will be processed via Apache Tika and chunked into 384-dim vector embeddings.</p>
             </div>
           )}
         </div>
@@ -143,7 +143,7 @@ export const DocumentsPage: React.FC = () => {
           >
             <option value="ALL">All Statuses</option>
             <option value="ACTIVE">Active RAG Ready</option>
-            <option value="EMBEDDED">1536 Vector Embedded</option>
+            <option value="EMBEDDED">384 Vector Embedded</option>
             <option value="CHUNKED">Text Chunked</option>
             <option value="PARSING">Apache Tika Parsing</option>
             <option value="UPLOADED">Uploaded</option>

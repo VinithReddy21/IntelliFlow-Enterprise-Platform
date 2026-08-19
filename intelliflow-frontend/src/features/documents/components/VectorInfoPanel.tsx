@@ -18,12 +18,12 @@ export const VectorInfoPanel: React.FC<Props> = ({ document }) => {
         <div className="grid grid-cols-2 gap-3 text-xs">
           <div className="p-3 rounded-lg bg-zinc-950/60 border border-white/5">
             <span className="text-zinc-500 text-[10px] block mb-0.5">Embedding Model</span>
-            <span className="font-mono font-bold text-zinc-200">{document.embeddingModel || 'text-embedding-3-small'}</span>
+            <span className="font-mono font-bold text-zinc-200">{document.embeddingModel || 'sentence-transformers/all-MiniLM-L6-v2'}</span>
           </div>
 
           <div className="p-3 rounded-lg bg-zinc-950/60 border border-white/5">
             <span className="text-zinc-500 text-[10px] block mb-0.5">Vector Dimensions</span>
-            <span className="font-mono font-bold text-amber-400">{document.vectorDimensions || 1536} Vector Ops</span>
+            <span className="font-mono font-bold text-amber-400">{document.vectorDimensions || 384} Vector Ops</span>
           </div>
 
           <div className="p-3 rounded-lg bg-zinc-950/60 border border-white/5">

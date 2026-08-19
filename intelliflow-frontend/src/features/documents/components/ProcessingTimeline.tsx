@@ -13,7 +13,7 @@ export const ProcessingTimeline: React.FC<Props> = ({ status }) => {
     { title: 'Apache Tika Parsing', desc: 'Extracted structured text' },
     { title: 'Text Extraction', desc: 'Cleaned metadata & encoding' },
     { title: 'Chunking', desc: '500-token sliding window' },
-    { title: 'Embedding Generation', desc: '1536-dim OpenAI embedding' },
+    { title: 'Embedding Generation', desc: '384-dim SentenceTransformer embedding' },
     { title: 'pgvector Storage', desc: 'HNSW index cosine ops' },
     { title: 'Ready for AI Search', desc: 'Grounded RAG retrieval active' },
   ];

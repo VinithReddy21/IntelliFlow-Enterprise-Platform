@@ -154,8 +154,11 @@ public class DocumentServiceImpl implements DocumentService {
     @Override
     @Transactional(readOnly = true)
     public Page<DocumentResponseDto> getDocumentsByDepartment(UUID departmentId, Pageable pageable) {
-        return documentRepository.findByDepartmentIdAndDeletedAtIsNull(departmentId, pageable)
-                .map(DocumentResponseDto::fromEntity);
+        Page<DocumentEntity> page = departmentId != null
+                ? documentRepository.findByDepartmentIdAndDeletedAtIsNull(departmentId, pageable)
+                : documentRepository.findByDeletedAtIsNull(pageable);
+
+        return page.map(DocumentResponseDto::fromEntity);
     }
 
     @Override

@@ -52,7 +52,7 @@ export const DocumentCard: React.FC<Props> = ({ document, onSelect, onDelete }) 
         {document.vectorDimensions && (
           <span className="flex items-center space-x-1 text-[10px] font-mono text-amber-400">
             <Cpu className="w-3 h-3" />
-            <span>1536d</span>
+            <span>384d</span>
           </span>
         )}
       </div>

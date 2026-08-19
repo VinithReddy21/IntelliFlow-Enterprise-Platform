@@ -19,17 +19,17 @@ export const AiChatInterface: React.FC = () => {
         {
           id: 'msg-1',
           sender: 'user',
-          content: 'Explain how IntelliFlow implements 1536-dimensional vector search with pgvector.',
+          content: 'Explain how IntelliFlow implements 384-dimensional vector search with pgvector.',
           timestamp: '10:00 AM',
         },
         {
           id: 'msg-2',
           sender: 'assistant',
-          content: `IntelliFlow platform implements a **1536-dimensional vector similarity engine** using PostgreSQL \`pgvector\` with an HNSW index (\`vector_cosine_ops\`).
+          content: `IntelliFlow platform implements a **384-dimensional vector similarity engine** using PostgreSQL \`pgvector\` with an HNSW index (\`vector_cosine_ops\`).
 
 ### Architectural Pipeline
 1. **Document Ingestion**: Files uploaded via \`FileStorageService\` are parsed by Apache Tika and split into 500-token chunks (50-token overlap).
-2. **Embedding Generation**: \`OpenAiEmbeddingService\` generates 1536-dimensional vector arrays stored in \`document_chunks\`.
+2. **Embedding Generation**: \`OpenAiEmbeddingService\` generates 384-dimensional vector arrays stored in \`document_chunks\`.
 3. **Similarity Search**: Executes HNSW vector cosine similarity queries with department-level ABAC security filtering.`,
           timestamp: '10:01 AM',
           confidenceScore: 0.96,
@@ -41,7 +41,7 @@ export const AiChatInterface: React.FC = () => {
               documentTitle: 'Enterprise_RAG_Architecture_Specification_v1.pdf',
               chunkIndex: 1,
               similarityScore: 0.96,
-              contentSnippet: 'IntelliFlow platform implements a 1536-dimensional vector similarity retrieval engine leveraging pgvector HNSW indexes.',
+              contentSnippet: 'IntelliFlow platform implements a 384-dimensional vector similarity retrieval engine leveraging pgvector HNSW indexes.',
             },
           ],
         },
@@ -87,11 +87,12 @@ export const AiChatInterface: React.FC = () => {
         const assistantMsg: ChatMessage = {
           id: crypto.randomUUID(),
           sender: 'assistant',
-          content: data.answer,
+          content: data.answer || (data as any).generatedAnswer || 'No response returned from AI microservice.',
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
           citations: data.citations,
           confidenceScore: data.confidenceScore,
           latencyMs: data.latencyMs,
+          model: (data as any).model || 'llama-3.3-70b-versatile',
         };
 
         setConversations((prev) =>
@@ -172,7 +173,7 @@ export const AiChatInterface: React.FC = () => {
               {/* Prompt Suggestions */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full text-left">
                 {[
-                  'Explain 1536-dim vector search with pgvector HNSW',
+                  'Explain 384-dim vector search with pgvector HNSW',
                   'Audit OWASP RateLimitingFilter & HSTS security implementation',
                   'Summarize HikariCP database pool benchmark SLA',
                   'Describe Apache Tika document chunking pipeline',

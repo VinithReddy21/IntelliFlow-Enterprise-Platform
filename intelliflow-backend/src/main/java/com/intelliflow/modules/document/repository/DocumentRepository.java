@@ -30,6 +30,8 @@ public interface DocumentRepository extends JpaRepository<DocumentEntity, UUID>,
 
     Page<DocumentEntity> findByDepartmentIdAndDeletedAtIsNull(UUID departmentId, Pageable pageable);
 
+    Page<DocumentEntity> findByDeletedAtIsNull(Pageable pageable);
+
     List<DocumentEntity> findByEntityTypeAndEntityIdAndDeletedAtIsNull(String entityType, UUID entityId);
 
     List<DocumentEntity> findByStatusAndDeletedAtIsNull(DocumentStatus status);

@@ -2,26 +2,31 @@ package com.intelliflow.modules.document.service.ai;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
- * Sentence Transformer (all-MiniLM-L6-v2) / Groq compatible Implementation of EmbeddingGenerationService.
+ * Sentence Transformer (all-MiniLM-L6-v2) Implementation of EmbeddingGenerationService.
  * 
- * Generates 384-dimensional dense float vector embeddings for text chunks.
+ * Dispatches text payload requests to Python FastAPI AI Microservice to generate
+ * 384-dimensional dense float vector embeddings.
  */
 @Slf4j
 @Service
 public class OpenAiEmbeddingService implements EmbeddingGenerationService {
 
-    @Value("${intelliflow.ai.groq.api-key:mock-key}")
-    private String apiKey;
+    @Value("${ai-service.base-url:http://localhost:8000}")
+    private String aiServiceBaseUrl;
 
     private static final int VECTOR_DIMENSION = 384;
+    private final RestTemplate restTemplate = new RestTemplate();
 
     @Override
     public float[] generateEmbedding(String text) {
@@ -30,11 +35,29 @@ public class OpenAiEmbeddingService implements EmbeddingGenerationService {
         }
 
         try {
-            // Sentence Transformer 384-dimensional embedding vector generation logic with deterministic normalized fallback
-            return computeDeterministicNormalizedVector(text, VECTOR_DIMENSION);
+            String url = aiServiceBaseUrl.replaceAll("/+$", "") + "/api/v1/embeddings";
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            Map<String, Object> requestBody = Map.of("text", text);
+            HttpEntity<Map<String, Object>> request = new HttpEntity<>(requestBody, headers);
+
+            Map<String, Object> response = restTemplate.postForObject(url, request, Map.class);
+            if (response != null && "success".equals(response.get("status"))) {
+                Map<String, Object> data = (Map<String, Object>) response.get("data");
+                if (data != null && data.containsKey("embedding")) {
+                    List<Number> list = (List<Number>) data.get("embedding");
+                    float[] vector = new float[list.size()];
+                    for (int i = 0; i < list.size(); i++) {
+                        vector[i] = list.get(i).floatValue();
+                    }
+                    return vector;
+                }
+            }
+            throw new IllegalStateException("FastAPI embedding service returned invalid or missing response payload");
         } catch (Exception e) {
-            log.error("Error generating 384-dim vector embedding for text payload", e);
-            return computeDeterministicNormalizedVector(text, VECTOR_DIMENSION);
+            log.error("Failed to generate SentenceTransformer embedding via Python AI Microservice at {}", aiServiceBaseUrl, e);
+            throw new RuntimeException("Embedding generation failed via Python AI microservice: " + e.getMessage(), e);
         }
     }
 
@@ -49,32 +72,5 @@ public class OpenAiEmbeddingService implements EmbeddingGenerationService {
             embeddings.add(generateEmbedding(chunk));
         }
         return embeddings;
-    }
-
-    private float[] computeDeterministicNormalizedVector(String text, int dimensions) {
-        float[] vector = new float[dimensions];
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] hash = digest.digest(text.getBytes(StandardCharsets.UTF_8));
-
-            double sumSquare = 0.0;
-            for (int i = 0; i < dimensions; i++) {
-                byte b = hash[i % hash.length];
-                float val = (float) Math.sin((double) b + i);
-                vector[i] = val;
-                sumSquare += val * val;
-            }
-
-            // L2 Vector Normalization
-            float norm = (float) Math.sqrt(sumSquare);
-            if (norm > 0) {
-                for (int i = 0; i < dimensions; i++) {
-                    vector[i] /= norm;
-                }
-            }
-        } catch (Exception e) {
-            log.error("Failed to compute deterministic normalized vector", e);
-        }
-        return vector;
     }
 }

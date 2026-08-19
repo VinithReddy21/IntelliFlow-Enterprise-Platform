@@ -93,6 +93,20 @@ class DocumentIngestionService:
             except Exception as e:
                 logger.warning(f"Failed to persist document to PostgreSQL ({str(e)}). Proceeding with response.")
 
+        # Register in in-memory vector store for instant retrieval
+        from app.retrieval.retriever import register_in_memory_chunk
+        for chunk in chunk_dicts:
+            register_in_memory_chunk({
+                "chunk_id": str(uuid.uuid4()),
+                "document_id": doc_id,
+                "document_title": filename,
+                "chunk_index": chunk["chunk_index"],
+                "content": chunk["content"],
+                "embedding": chunk["embedding"],
+                "token_count": chunk["token_count"]
+            })
+        logger.info(f"Registered {len(chunk_dicts)} chunks into in-memory vector store for '{filename}'.")
+
         return IngestionResponse(
             document_id=doc_id,
             file_name=filename,

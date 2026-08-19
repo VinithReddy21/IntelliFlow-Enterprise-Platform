@@ -5,10 +5,9 @@ import { Navbar } from './Navbar';
 
 export const DashboardLayout: React.FC = () => {
   return (
-    <div className="flex min-h-screen bg-background text-foreground relative overflow-hidden">
-      {/* Background Ambient Glows */}
-      <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-amber-500/5 rounded-full blur-[140px] pointer-events-none"></div>
-      <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-amber-600/5 rounded-full blur-[140px] pointer-events-none"></div>
+    <div className="flex min-h-screen enterprise-grid-bg text-foreground relative overflow-hidden">
+      {/* Restrained Ambient Gold Illumination */}
+      <div className="absolute top-0 left-1/4 w-[600px] h-[300px] bg-amber-500/[0.03] rounded-full blur-[140px] pointer-events-none"></div>
 
       {/* Fixed Sidebar */}
       <Sidebar />

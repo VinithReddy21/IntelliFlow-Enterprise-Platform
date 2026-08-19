@@ -16,6 +16,7 @@ export interface ChatMessage {
   citations?: SourceCitation[];
   confidenceScore?: number; // e.g. 0.96
   latencyMs?: number;
+  model?: string;
   isStreaming?: boolean;
 }
 

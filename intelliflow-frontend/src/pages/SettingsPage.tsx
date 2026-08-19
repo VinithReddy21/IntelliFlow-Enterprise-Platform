@@ -4,7 +4,7 @@ import { Sliders, Cpu, Bell, Shield, Palette } from 'lucide-react';
 export const SettingsPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'ai' | 'notifications' | 'appearance' | 'privacy'>('ai');
   const [temperature, setTemperature] = useState(0.2);
-  const [vectorModel, setVectorModel] = useState('text-embedding-3-small');
+  const [vectorModel, setVectorModel] = useState('sentence-transformers/all-MiniLM-L6-v2');
   const [emailNotifications, setEmailNotifications] = useState(true);
 
   return (
@@ -72,8 +72,7 @@ export const SettingsPage: React.FC = () => {
                 onChange={(e) => setVectorModel(e.target.value)}
                 className="w-full px-3.5 py-2.5 bg-zinc-900 border border-white/10 rounded-xl text-zinc-200 font-mono focus:outline-none focus:border-amber-500/60"
               >
-                <option value="text-embedding-3-small">text-embedding-3-small (1536-dim)</option>
-                <option value="text-embedding-3-large">text-embedding-3-large (3072-dim)</option>
+                <option value="sentence-transformers/all-MiniLM-L6-v2">sentence-transformers/all-MiniLM-L6-v2 (384-dim)</option>
               </select>
             </div>
 

@@ -120,7 +120,7 @@ export const AdminPage: React.FC = () => {
           {[
             { name: 'PostgreSQL Database', status: 'HEALTHY', latency: '2 ms', desc: 'HikariCP 10/30 Active' },
             { name: 'Redis Cache Layer', status: 'HEALTHY', latency: '1 ms', desc: 'Ping/Pong Response OK' },
-            { name: 'OpenAI AI Engine', status: 'HEALTHY', latency: '18 ms', desc: '1536-dim Embedding Active' },
+            { name: 'FastAPI AI Microservice', status: 'HEALTHY', latency: '12 ms', desc: '384-dim Embedding Active' },
             { name: 'File Storage Service', status: 'HEALTHY', latency: '4 ms', desc: 'Local Storage Verified' },
           ].map((item, idx) => (
             <div key={idx} className="p-5 rounded-2xl glass-card border border-white/10 space-y-2">

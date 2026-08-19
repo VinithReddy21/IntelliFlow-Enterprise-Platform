@@ -5,12 +5,14 @@ interface Props {
   confidenceScore?: number;
   latencyMs?: number;
   citationCount?: number;
+  modelName?: string;
 }
 
 export const AiConfidenceMeter: React.FC<Props> = ({
   confidenceScore = 0.96,
   latencyMs = 18,
   citationCount = 2,
+  modelName = 'llama-3.3-70b-versatile',
 }) => {
   const percentage = Math.round(confidenceScore * 100);
 
@@ -42,7 +44,7 @@ export const AiConfidenceMeter: React.FC<Props> = ({
       <div className="grid grid-cols-3 gap-2 text-[10px] font-mono text-zinc-400 pt-1">
         <div className="p-2 rounded-lg bg-zinc-950/60 border border-white/5 text-center">
           <span className="text-zinc-500 block text-[9px]">Model</span>
-          <span className="font-bold text-zinc-200">text-embed-3</span>
+          <span className="font-bold text-zinc-200 truncate block max-w-[120px]" title={modelName}>{modelName}</span>
         </div>
         <div className="p-2 rounded-lg bg-zinc-950/60 border border-white/5 text-center">
           <span className="text-zinc-500 block text-[9px]">Latency</span>

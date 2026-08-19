@@ -66,7 +66,7 @@ export const LandingPage: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-20 text-left w-full">
           <div className="p-6 rounded-2xl glass-card border border-white/10 hover:border-amber-500/30 transition-colors">
             <Database className="w-8 h-8 text-amber-400 mb-4" />
-            <h3 className="text-base font-bold text-zinc-100">1536-dim Vector Search</h3>
+            <h3 className="text-base font-bold text-zinc-100">384-dim Vector Search</h3>
             <p className="mt-2 text-xs text-zinc-400 leading-relaxed">
               Native pgvector HNSW index search returning grounded prompt context with strict department permissions.
             </p>

@@ -1,7 +1,9 @@
-from fastapi import APIRouter, Depends, File, UploadFile, status
+from fastapi import APIRouter, Depends, File, UploadFile, status, Body
+from typing import Dict, Any, List
 from app.schemas.document import IngestionResponse
 from app.schemas.response import ApiResponse
 from app.services.document_ingestion_service import DocumentIngestionService
+from app.services.embedding_service import embedding_service
 from app.dependencies import get_document_ingestion_service
 
 document_router = APIRouter()
@@ -36,3 +38,23 @@ async def ingest_document(
         message="Document successfully processed and vectorized",
         data=result
     )
+
+@document_router.post(
+    "/embeddings",
+    tags=["Embeddings"],
+    status_code=status.HTTP_200_OK
+)
+async def generate_embeddings(payload: Dict[str, Any] = Body(...)):
+    """
+    Generates 384-dimensional dense float vector embedding using SentenceTransformer (all-MiniLM-L6-v2).
+    """
+    text = payload.get("text", "")
+    embedding = embedding_service.encode_query(text)
+    return {
+        "status": "success",
+        "data": {
+            "embedding": embedding,
+            "dimension": len(embedding),
+            "model": "sentence-transformers/all-MiniLM-L6-v2"
+        }
+    }

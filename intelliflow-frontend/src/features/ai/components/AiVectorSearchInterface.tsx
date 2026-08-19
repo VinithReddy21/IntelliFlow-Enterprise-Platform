@@ -8,7 +8,7 @@ export const AiVectorSearchInterface: React.FC = () => {
   const vectorSearchMutation = useVectorSearch();
 
   const [searchParams, setSearchParams] = useState<VectorSearchParams>({
-    query: '1536 vector search HNSW pgvector',
+    query: '384 vector search HNSW pgvector',
     similarityThreshold: 0.8,
     topK: 5,
   });
@@ -27,14 +27,18 @@ export const AiVectorSearchInterface: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <div className="inline-flex items-center space-x-2 text-amber-400 text-xs font-semibold uppercase tracking-wider mb-1">
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>Semantic Vector Engine</span>
-          </div>
-          <h1 className="text-2xl font-bold text-zinc-100">1536-Dimensional Vector Similarity Search</h1>
+      <div className="flex flex-col gap-2">
+        <div className="inline-flex items-center space-x-2 text-amber-400 text-xs font-semibold uppercase tracking-wider">
+          <Sparkles className="w-3.5 h-3.5" />
+          <span>Semantic Vector Engine</span>
         </div>
+        <h1 className="text-2xl font-bold text-zinc-100">AI Vector Search</h1>
+        <p className="text-sm text-zinc-300 font-medium">
+          Find relevant enterprise knowledge by meaning, not just exact keywords.
+        </p>
+        <p className="text-xs text-zinc-400 leading-relaxed bg-zinc-900/80 p-3.5 rounded-xl border border-white/10 mt-1">
+          Your query is converted into a 384-dimensional embedding and compared with document embeddings stored in PostgreSQL pgvector. The most semantically relevant document chunks are returned.
+        </p>
       </div>
 
       {/* Query Bar */}

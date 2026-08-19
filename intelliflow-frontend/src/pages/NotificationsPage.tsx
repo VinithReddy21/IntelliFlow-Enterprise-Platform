@@ -15,7 +15,7 @@ export const NotificationsPage: React.FC = () => {
     {
       id: 'notif-2',
       title: 'Document Ingestion Complete: Enterprise_RAG.pdf',
-      message: '1536-dimensional embeddings generated with pgvector HNSW cosine ops.',
+      message: '384-dimensional embeddings generated with pgvector HNSW cosine ops.',
       type: 'DOCUMENT_EMBEDDED',
       isRead: false,
       timestamp: '1 hour ago',

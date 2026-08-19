@@ -28,18 +28,19 @@ public class OpenAiLlmService implements LlmGenerationService {
     public String generateAnswer(String userPrompt, String contextPayload) {
         log.info("Dispatching grounded RAG chat completion request to Python AI Microservice ({})", aiServiceBaseUrl);
 
-        if (contextPayload == null || contextPayload.isBlank()) {
-            return "No relevant corporate documents were found in the knowledge base to answer your question with sufficient confidence.";
-        }
-
         try {
             String url = aiServiceBaseUrl.replaceAll("/+$", "") + "/api/v1/chat";
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
 
+            String combinedPrompt = userPrompt;
+            if (contextPayload != null && !contextPayload.isBlank()) {
+                combinedPrompt = userPrompt + "\n\nContext:\n" + contextPayload.trim();
+            }
+
             Map<String, Object> requestBody = Map.of(
-                "prompt", userPrompt,
-                "system_prompt", "You are IntelliFlow Copilot, an enterprise AI assistant. Ground your answer in the provided document context.",
+                "prompt", combinedPrompt,
+                "system_prompt", "You are IntelliFlow Copilot, an enterprise AI assistant. Ground your answer in the provided document context if available.",
                 "temperature", 0.2,
                 "max_tokens", 1024
             );
@@ -58,12 +59,16 @@ public class OpenAiLlmService implements LlmGenerationService {
         }
 
         // Grounded Synthesis Prompt Fallback
-        return String.format("""
-                Based on the provided corporate documents:
-                
-                %s
-                
-                Summary Answer: The system verified retrieved document passages regarding '%s'. Please consult attached source citations for explicit verification.
-                """, contextPayload.trim(), userPrompt.trim());
+        if (contextPayload != null && !contextPayload.isBlank()) {
+            return String.format("""
+                    Based on the provided corporate documents:
+                    
+                    %s
+                    
+                    Summary Answer: The system verified retrieved document passages regarding '%s'. Please consult attached source citations for explicit verification.
+                    """, contextPayload.trim(), userPrompt.trim());
+        }
+
+        return "IntelliFlow Copilot: Automated response generated for prompt: " + userPrompt;
     }
 }

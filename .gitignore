@@ -71,11 +71,13 @@ ehthumbs.db
 Thumbs.db
 desktop.ini
 
-# Logs & Temporary Data
+# Logs & Temporary Data & Local Storage
 *.log
 logs/
 tmp/
+storage/
 storage-data/
+intelliflow-backend/storage/
 uploads/
 
 # Test Coverage Artifacts

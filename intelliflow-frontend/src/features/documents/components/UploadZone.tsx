@@ -61,7 +61,7 @@ export const UploadZone: React.FC<Props> = ({ onFilesSelected }) => {
 
       <div className="mt-4 inline-flex items-center space-x-2 text-[10px] text-zinc-500 font-mono">
         <FileText className="w-3 h-3 text-amber-400" />
-        <span>Automated Apache Tika Text Extraction & 1536-dim Embedding</span>
+        <span>Automated Apache Tika Text Extraction & 384-dim Embedding</span>
       </div>
     </div>
   );
